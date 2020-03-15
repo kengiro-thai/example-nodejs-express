@@ -40,4 +40,5 @@ jobs:
               docker push opasmails/example-nodejs-circle-staging:latest
             else
               echo "This is ${CIRCLE_BRANCH}"
+            fi
       - run: echo Done
