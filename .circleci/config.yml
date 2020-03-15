@@ -51,5 +51,5 @@ jobs:
             etlweather/gaucho upgrade $RANCHER_EXAMPLE_NODEJS \
             --imageUuid 'docker:opasmails/example-nodejs-circle:latest' \
             --batch_size 3 --start_first \
-            --auto_complete --time 600 \
+            --auto_complete --timeout 600 \
       - run: echo Done
