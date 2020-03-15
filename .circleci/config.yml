@@ -22,4 +22,15 @@ jobs:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
+
+      - setup_remote_docker
+      - run: Docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+      - run:
+          name: 'Build docker image and push to docker hub'
+          command: |
+            cp Dcokerfile.production Dcokerfile
+            docker build -t opasmails/example-docdjs-circle:latest .
+            docker build -t opasmails/example-docdjs-circle:${CIRCLE_SHA1} .
+            docker push opasmails/example-docdjs-circle:latest
+            docker push opasmails/example-docdjs-circle:${CIRCLE_SHA1}
       - run: echo Done
