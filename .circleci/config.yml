@@ -88,14 +88,13 @@ jobs:
             --batch_size 3 --start_first \
             --auto_complete --timeout 600 \
       - run: echo Done
-
 workflows:
   version: 2
   build_test_ship_deploy:
     jobs:
       - build
       - test:
-          requires: -build
+          requires: - build
       - ship:
           requires:
             - build
