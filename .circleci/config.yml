@@ -30,10 +30,10 @@ jobs:
             - v1-dependencies-
       - run: npm install
       - run: npm run test
-    - save_cache:
-        paths:
-          - node_modules
-        key: v1-dependencies-{{ checksum "package.json" }}
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
   ship:
     docker:
       # specify the version you desire here
