@@ -19,7 +19,7 @@ jobs:
       - run: npm install
   test:
       requires:
-        build
+        - build
         docker:
           - image: circleci/node:8.11.1-stretch
         working_directory: ~/repo
