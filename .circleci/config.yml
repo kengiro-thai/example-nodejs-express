@@ -17,39 +17,41 @@ jobs:
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
       - run: npm install
-      - run: npm run test
-      - save_cache:
-          paths:
-            - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
-
-      - setup_remote_docker
-      - run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
-      - run:
-          name: 'Build docker image and push to docker hub'
-          command: |
-            if ["${CIRCLE_BRANCH}"=="master"]; then
-              cp Dockerfile.production Dockerfile
-              docker build -t opasmails/example-nodejs-circle:latest .
-              docker build -t opasmails/example-nodejs-circle:${CIRCLE_SHA1} .
-              docker push opasmails/example-nodejs-circle:latest
-              docker push opasmails/example-nodejs-circle:${CIRCLE_SHA1}
-            elif ["${CIRCLE_BRANCH}"=="staging"]; then
-              cp Dockerfile.staging Dockerfile
-              docker build -t opasmails/example-nodejs-circle-staging:latest .
-              docker push opasmails/example-nodejs-circle-staging:latest
-            else
-              echo "This is ${CIRCLE_BRANCH}"
-            fi
-      - run:
-          name: 'Call to rancher to deploy'
-          command: |
-            docker run --rm -it \
-            -e CATTLE_ACCESS_KEY="$CATTLE_ACCESS_KEY" \
-            -e CATTLE_SECRET_KEY="$CATTLE_SECRET_KEY" \
-            -e CATTLE_URL="$CATTLE_URL" \
-            etlweather/gaucho upgrade $RANCHER_EXAMPLE_NODEJS \
-            --imageUuid 'docker:opasmails/example-docdjs-circle:latest' \
-            --batch_size 3 --start_first \
-            --auto_complete --timeout 600 \
-      - run: echo Done
+  test:
+    - run: npm run test
+    - save_cache:
+        paths:
+          - node_modules
+        key: v1-dependencies-{{ checksum "package.json" }}
+  ship:
+    - setup_remote_docker
+    - run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+    - run:
+        name: 'Build docker image and push to docker hub'
+        command: |
+          if ["${CIRCLE_BRANCH}"=="master"]; then
+            cp Dockerfile.production Dockerfile
+            docker build -t opasmails/example-nodejs-circle:latest .
+            docker build -t opasmails/example-nodejs-circle:${CIRCLE_SHA1} .
+            docker push opasmails/example-nodejs-circle:latest
+            docker push opasmails/example-nodejs-circle:${CIRCLE_SHA1}
+          elif ["${CIRCLE_BRANCH}"=="staging"]; then
+            cp Dockerfile.staging Dockerfile
+            docker build -t opasmails/example-nodejs-circle-staging:latest .
+            docker push opasmails/example-nodejs-circle-staging:latest
+          else
+            echo "This is ${CIRCLE_BRANCH}"
+          fi
+  deploy:
+    - run:
+        name: 'Call to rancher to deploy'
+        command: |
+          docker run --rm -it \
+          -e CATTLE_ACCESS_KEY="$CATTLE_ACCESS_KEY" \
+          -e CATTLE_SECRET_KEY="$CATTLE_SECRET_KEY" \
+          -e CATTLE_URL="$CATTLE_URL" \
+          etlweather/gaucho upgrade $RANCHER_EXAMPLE_NODEJS \
+          --imageUuid 'docker:opasmails/example-docdjs-circle:latest' \
+          --batch_size 3 --start_first \
+          --auto_complete --timeout 600 \
+    - run: echo Done
