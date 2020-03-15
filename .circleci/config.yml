@@ -28,9 +28,16 @@ jobs:
       - run:
           name: 'Build docker image and push to docker hub'
           command: |
-            cp Dockerfile.production Dcokerfile
-            docker build -t opasmails/example-docdjs-circle:latest .
-            docker build -t opasmails/example-docdjs-circle:${CIRCLE_SHA1} .
-            docker push opasmails/example-docdjs-circle:latest
-            docker push opasmails/example-docdjs-circle:${CIRCLE_SHA1}
+            if ["${CIRCLE_BRANCH}"=="master"]; then
+              cp Dockerfile.production Dockerfile
+              docker build -t opasmails/example-nodejs-circle:latest .
+              docker build -t opasmails/example-nodejs-circle:${CIRCLE_SHA1} .
+              docker push opasmails/example-nodejs-circle:latest
+              docker push opasmails/example-nodejs-circle:${CIRCLE_SHA1}
+            elif ["${CIRCLE_BRANCH}"=="staging"]; then
+              cp Dockerfile.staging Dockerfile
+              docker build -t opasmails/example-nodejs-circle-staging:latest .
+              docker push opasmails/example-nodejs-circle-staging:latest
+            else
+              echo "This is ${CIRCLE_BRANCH}"
       - run: echo Done
